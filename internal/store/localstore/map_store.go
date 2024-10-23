@@ -2,8 +2,8 @@ package localstore
 
 import "sync"
 
-type MapStore[V any] struct {
-	store map[string]V
+type MapStore[T any] struct {
+	store map[string]T
 	lock  sync.RWMutex
 }
 

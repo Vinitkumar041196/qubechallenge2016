@@ -45,6 +45,8 @@ func validatePutDistributorReq(dist *types.Distributor) error {
 		return fmt.Errorf("code cannot be empty")
 	}
 
+	// TODO: VALIDATION for include and exclude
+
 	if len(dist.SubDistributors) > 0 {
 		for _, subD := range dist.SubDistributors {
 			err := validatePutDistributorReq(subD)
