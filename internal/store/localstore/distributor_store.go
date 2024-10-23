@@ -10,7 +10,7 @@ type localDistributorStore struct {
 	store MapStore[*types.Distributor]
 }
 
-func NewLocalDistributorStore(filepath string) store.DistributorStorage {
+func NewLocalDistributorStore() store.DistributorStorage {
 	return &localDistributorStore{
 		store: newMapStore[*types.Distributor](),
 	}
@@ -28,7 +28,14 @@ func (s *localDistributorStore) PutDistributorByCode(dist *types.Distributor) er
 	if dist == nil {
 		return fmt.Errorf("record cannot be nil")
 	}
+
 	s.store.Set(dist.Code, dist)
+
+	if len(dist.SubDistributors) > 0 {
+		for _, subD := range dist.SubDistributors {
+			s.store.Set(subD.Code, subD)
+		}
+	}
 	return nil
 }
 

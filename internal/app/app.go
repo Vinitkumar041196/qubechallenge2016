@@ -11,22 +11,25 @@ type App struct {
 	distStore    store.DistributorStorage
 }
 
-func NewApp(countryStore store.CountryStorage, distStore store.DistributorStorage) *App {
+func NewApp(countryStore store.CountryStorage, distStore store.DistributorStorage) (*App, error) {
+	err := countryStore.LoadData()
+	if err != nil {
+		return nil, err
+	}
+
 	return &App{
 		countryStore: countryStore,
 		distStore:    distStore,
-	}
+	}, nil
 }
 
-func (a *App) PutDistributor(dist *types.PutDistributorRequest) error {
+func (a *App) PutDistributor(dist *types.Distributor) error {
 	err := validatePutDistributorReq(dist)
 	if err != nil {
 		return err
 	}
 
-	distributor := dist.ToDistributor()
-
-	err = a.distStore.PutDistributorByCode(distributor)
+	err = a.distStore.PutDistributorByCode(dist)
 	if err != nil {
 		return err
 	}
@@ -34,7 +37,7 @@ func (a *App) PutDistributor(dist *types.PutDistributorRequest) error {
 	return nil
 }
 
-func validatePutDistributorReq(dist *types.PutDistributorRequest) error {
+func validatePutDistributorReq(dist *types.Distributor) error {
 	if dist == nil {
 		return fmt.Errorf("invalid input")
 	}
