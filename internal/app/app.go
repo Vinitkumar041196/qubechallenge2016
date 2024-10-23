@@ -68,3 +68,16 @@ func (a *App) GetDistributor(code string) (*types.Distributor, error) {
 
 	return dist, nil
 }
+
+func (a *App) DeleteDistributor(code string) error {
+	if code == "" {
+		return fmt.Errorf("code cannot be empty")
+	}
+
+	err := a.distStore.DeleteDistributorByCode(code)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

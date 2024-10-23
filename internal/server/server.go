@@ -26,6 +26,10 @@ func (srv *Server) SetRouter() {
 	router.Use(cors.Default())
 	router.GET("/", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"message": "success"}) })
 
+	router.PUT("/distributor", srv.PutDistributor)
+	router.GET("/distributor/:code", srv.GetDistributor)
+	router.DELETE("/distributor/:code", srv.DeleteDistributor)
+
 	srv.router = router
 }
 
