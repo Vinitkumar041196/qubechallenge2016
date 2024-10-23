@@ -1,19 +1,19 @@
 package main
 
 import (
-	"distributor-manager/internal/parser"
-	"fmt"
+	"distributor-manager/internal/store/localstore"
 	"log"
 )
 
 func main() {
 	log.SetFlags(log.Lshortfile | log.Ldate)
 	log.Println("Initializing server...")
-	data, err := parser.ParseCSVToCountries("data/cities.csv")
+
+	store := localstore.NewLocalCountryStore("data/cities.csv")
+	err := store.LoadData()
 	if err != nil {
-		log.Println(err)
-		return
+		log.Fatal("error while loading data to store: ", err)
 	}
 
-	fmt.Println(data)
+	log.Println(store.GetCityByCode("GB", "ENG", "SOMER"))
 }
