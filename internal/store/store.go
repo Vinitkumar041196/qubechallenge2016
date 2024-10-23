@@ -14,6 +14,6 @@ type CountryStorage interface {
 
 type DistributorStorage interface {
 	GetDistributorByCode(code string) (*types.Distributor, error)
-	PutDistributorByCode(code string, dist types.Distributor) error
+	PutDistributorByCode(dist *types.Distributor) error
 	DeleteDistributorByCode(code string) error
 }
