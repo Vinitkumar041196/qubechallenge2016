@@ -24,7 +24,7 @@ func NewApp(countryStore store.CountryStorage, distStore store.DistributorStorag
 }
 
 func (a *App) PutDistributor(dist *types.Distributor) error {
-	err := validatePutDistributorReq(dist)
+	err := a.validatePutDistributorReq(dist)
 	if err != nil {
 		return err
 	}
@@ -37,7 +37,7 @@ func (a *App) PutDistributor(dist *types.Distributor) error {
 	return nil
 }
 
-func validatePutDistributorReq(dist *types.Distributor) error {
+func (a *App) validatePutDistributorReq(dist *types.Distributor) error {
 	if dist == nil {
 		return fmt.Errorf("invalid input")
 	}
@@ -45,16 +45,17 @@ func validatePutDistributorReq(dist *types.Distributor) error {
 		return fmt.Errorf("code cannot be empty")
 	}
 
-	// TODO: VALIDATION for include and exclude
+	for _, include := range dist.Permissions.Include {
+		if checkRegionInSlice(include, dist.Permissions.Exclude) {
+			return invalidInclusionError(include)
+		}
 
-	if len(dist.SubDistributors) > 0 {
-		for _, subD := range dist.SubDistributors {
-			err := validatePutDistributorReq(subD)
-			if err != nil {
-				return err
-			}
+		err := checkRegionValid(a.distStore, include, dist.ParentCode, false)
+		if err != nil {
+			return err
 		}
 	}
+
 	return nil
 }
 
