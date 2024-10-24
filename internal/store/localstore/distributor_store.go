@@ -6,44 +6,22 @@ import (
 	"fmt"
 )
 
-type DistributorDB struct {
-	Code        string
-	Permissions *types.DistributorPermissions
-	ParentCode  string
-}
-
 type localDistributorStore struct {
-	store MapStore[*DistributorDB]
+	store MapStore[*types.Distributor]
 }
 
 func NewLocalDistributorStore() store.DistributorStorage {
 	return &localDistributorStore{
-		store: newMapStore[*DistributorDB](),
+		store: newMapStore[*types.Distributor](),
 	}
-}
-
-func toDistributor(d *DistributorDB) *types.Distributor {
-	dist := new(types.Distributor)
-	dist.Code = d.Code
-	dist.Permissions = d.Permissions
-	dist.ParentCode = d.ParentCode
-	return dist
-}
-
-func toDistributorDB(d *types.Distributor) *DistributorDB {
-	dist := new(DistributorDB)
-	dist.Code = d.Code
-	dist.Permissions = d.Permissions
-	dist.ParentCode = d.ParentCode
-	return dist
 }
 
 func (s *localDistributorStore) GetDistributorByCode(code string) (*types.Distributor, error) {
 	dist, ok := s.store.Get(code)
 	if !ok {
-		return nil, ErrNotFound
+		return nil, recordNotFoundError(code)
 	}
-	return toDistributor(dist), nil
+	return dist, nil
 }
 
 func (s *localDistributorStore) PutDistributorByCode(dist *types.Distributor) error {
@@ -51,7 +29,7 @@ func (s *localDistributorStore) PutDistributorByCode(dist *types.Distributor) er
 		return fmt.Errorf("record cannot be nil")
 	}
 
-	s.store.Set(dist.Code, toDistributorDB(dist))
+	s.store.Set(dist.Code, dist)
 	return nil
 }
 

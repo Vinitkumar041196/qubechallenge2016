@@ -4,15 +4,13 @@ import (
 	"distributor-manager/internal/parser"
 	"distributor-manager/internal/store"
 	"distributor-manager/internal/types"
-	"errors"
+	"fmt"
 )
 
 type localCountryStore struct {
 	filePath string
 	store    map[string]*types.Country
 }
-
-var ErrNotFound error = errors.New("record not found")
 
 func NewLocalCountryStore(filepath string) store.CountryStorage {
 	return &localCountryStore{
@@ -79,7 +77,7 @@ func (s *localCountryStore) LoadData() error {
 func (s *localCountryStore) GetCountryByCode(code string) (*types.Country, error) {
 	country, ok := s.store[code]
 	if !ok {
-		return nil, ErrNotFound
+		return nil, recordNotFoundError(code)
 	}
 	return country, nil
 }
@@ -87,12 +85,12 @@ func (s *localCountryStore) GetCountryByCode(code string) (*types.Country, error
 func (s *localCountryStore) GetProvinceByCode(countryCode, provinceCode string) (*types.Province, error) {
 	country, ok := s.store[countryCode]
 	if !ok {
-		return nil, ErrNotFound
+		return nil, recordNotFoundError(countryCode)
 	}
 
 	province, ok := country.Provinces[provinceCode]
 	if !ok {
-		return nil, ErrNotFound
+		return nil, recordNotFoundError(provinceCode)
 	}
 	return province, nil
 }
@@ -100,18 +98,22 @@ func (s *localCountryStore) GetProvinceByCode(countryCode, provinceCode string) 
 func (s *localCountryStore) GetCityByCode(countryCode, provinceCode, cityCode string) (*types.City, error) {
 	country, ok := s.store[countryCode]
 	if !ok {
-		return nil, ErrNotFound
+		return nil, recordNotFoundError(countryCode)
 	}
 
 	province, ok := country.Provinces[provinceCode]
 	if !ok {
-		return nil, ErrNotFound
+		return nil, recordNotFoundError(provinceCode)
 	}
 
 	city, ok := province.Cities[cityCode]
 	if !ok {
-		return nil, ErrNotFound
+		return nil, recordNotFoundError(cityCode)
 	}
 
 	return city, nil
+}
+
+func recordNotFoundError(id string) error {
+	return fmt.Errorf("record not found: %s", id)
 }

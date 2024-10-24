@@ -2,8 +2,8 @@ package server
 
 import (
 	"distributor-manager/internal/app"
+	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -34,18 +34,15 @@ func (srv *Server) SetRouter() {
 }
 
 func (srv *Server) Start() error {
-	address := os.Getenv("HTTP_ADDR")
-	if address == "" {
-		address = ":8080"
-	}
-
 	httpSrv := &http.Server{
-		Addr:         address,
+		Addr:         ":8080",
 		WriteTimeout: time.Second * 15,
 		ReadTimeout:  time.Second * 15,
 		IdleTimeout:  time.Second * 60,
 		Handler:      srv.router,
 	}
+
+	log.Println("Starting HTTP server on :8080")
 
 	return httpSrv.ListenAndServe()
 }

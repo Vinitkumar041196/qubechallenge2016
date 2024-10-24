@@ -12,6 +12,7 @@ type App struct {
 	distStore    store.DistributorStorage
 }
 
+// New App initialisation
 func NewApp(countryStore store.CountryStorage, distStore store.DistributorStorage) (*App, error) {
 	err := countryStore.LoadData()
 	if err != nil {
@@ -24,12 +25,23 @@ func NewApp(countryStore store.CountryStorage, distStore store.DistributorStorag
 	}, nil
 }
 
+// Creates or Updates a distributor
 func (a *App) PutDistributor(dist *types.Distributor) error {
-	err := a.validatePutDistributorReq(dist)
+	//Validate input
+	if dist == nil {
+		return fmt.Errorf("invalid input")
+	}
+	if dist.Code == "" {
+		return fmt.Errorf("code cannot be empty")
+	}
+
+	//validate distributon permissions
+	err := a.validateDistributorPermissions(dist)
 	if err != nil {
 		return err
 	}
 
+	//store distributor
 	err = a.distStore.PutDistributorByCode(dist)
 	if err != nil {
 		return err
@@ -38,21 +50,21 @@ func (a *App) PutDistributor(dist *types.Distributor) error {
 	return nil
 }
 
-func (a *App) validatePutDistributorReq(dist *types.Distributor) error {
-	if dist == nil {
-		return fmt.Errorf("invalid input")
-	}
-	if dist.Code == "" {
-		return fmt.Errorf("code cannot be empty")
-	}
+// validates the regions in include list with self and ancestor permissions
+func (a *App) validateDistributorPermissions(dist *types.Distributor) error {
 
-	for _, include := range dist.Permissions.Include {
-		err := a.checkRegionStringValid(include)
+	for _, region := range dist.Permissions.Include {
+		//Split region string
+		rParts := strings.Split(region, "-")
+
+		//check if the codes in region string are valid
+		err := checkRegionStringValid(a.countryStore, rParts)
 		if err != nil {
-			return invalidRegionStringError(include)
+			return invalidRegionStringError(region)
 		}
 
-		err = a.checkRegionValidity(include, dist)
+		//Check if region is valid for given distributor
+		err = checkRegionValidity(a.distStore, rParts, dist)
 		if err != nil {
 			return err
 		}
@@ -61,45 +73,14 @@ func (a *App) validatePutDistributorReq(dist *types.Distributor) error {
 	return nil
 }
 
-func (a *App) checkRegionValidity(region string, dist *types.Distributor) error {
-	if checkRegionInSlice(region, dist.Permissions.Exclude) {
-		return invalidInclusionError(region)
-	}
-
-	err := checkRegionValid(a.distStore, region, dist.ParentCode, false)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func (a *App) checkRegionStringValid(region string) error {
-	parts := strings.Split(region, "-")
-	lenParts := len(parts)
-	if lenParts == 1 {
-		_, err := a.countryStore.GetCountryByCode(parts[0])
-		if err != nil {
-			return err
-		}
-	} else if lenParts == 2 {
-		_, err := a.countryStore.GetProvinceByCode(parts[1], parts[0])
-		if err != nil {
-			return err
-		}
-	} else if lenParts == 3 {
-		_, err := a.countryStore.GetCityByCode(parts[2], parts[1], parts[0])
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
+// Get distributor by code
 func (a *App) GetDistributor(code string) (*types.Distributor, error) {
+	//Validate input
 	if code == "" {
 		return nil, fmt.Errorf("code cannot be empty")
 	}
 
+	//get distributor from store
 	dist, err := a.distStore.GetDistributorByCode(code)
 	if err != nil {
 		return nil, err
@@ -108,7 +89,9 @@ func (a *App) GetDistributor(code string) (*types.Distributor, error) {
 	return dist, nil
 }
 
+// Checks if region is serviceable for a given ditributor
 func (a *App) CheckIsServiceable(req *types.IsServiceableRequest) (bool, error) {
+	//Validate input
 	if req.Code == "" {
 		return false, fmt.Errorf("code cannot be empty")
 	}
@@ -117,19 +100,26 @@ func (a *App) CheckIsServiceable(req *types.IsServiceableRequest) (bool, error) 
 		return false, fmt.Errorf("region cannot be empty")
 	}
 
+	//get distributor from store
 	dist, err := a.distStore.GetDistributorByCode(req.Code)
 	if err != nil {
 		return false, err
 	}
 
-	err = a.checkRegionStringValid(req.Region)
+	//Split region string
+	rParts := strings.Split(req.Region, "-")
+
+	//check if the codes in region string are valid
+	err = checkRegionStringValid(a.countryStore, rParts)
 	if err != nil {
 		return false, invalidRegionStringError(req.Region)
 	}
 
-	err = a.checkRegionValidity(req.Region, dist)
+	//Check if region is valid for given distributor
+	err = checkRegionValidity(a.distStore, rParts, dist)
 	if err != nil {
 		return false, nil
 	}
+
 	return true, nil
 }
