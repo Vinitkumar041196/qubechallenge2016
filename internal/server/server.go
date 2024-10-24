@@ -30,6 +30,7 @@ func (srv *Server) SetRouter() {
 
 	router.PUT("/distributor", srv.PutDistributor)
 	router.GET("/distributor/:code", srv.GetDistributor)
+	router.DELETE("/distributor/:code", srv.DeleteDistributor)
 	router.POST("/distributor/is_serviceable", srv.CheckIsServiceable)
 
 	srv.router = router

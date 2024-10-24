@@ -123,3 +123,18 @@ func (a *App) CheckIsServiceable(req *types.IsServiceableRequest) (bool, error) 
 
 	return true, nil
 }
+
+func (a *App) DeleteDistributor(code string) error {
+	//Validate input
+	if code == "" {
+		return fmt.Errorf("code cannot be empty")
+	}
+
+	//delete distributor from store
+	err := a.distStore.DeleteDistributorByCode(code)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

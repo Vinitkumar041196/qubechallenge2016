@@ -66,3 +66,19 @@ func (srv *Server) CheckIsServiceable(c *gin.Context) {
 
 	c.JSON(http.StatusOK, types.IsServiceableResponse{Code: req.Code, Region: req.Region, IsServiceable: isServiceableStr})
 }
+
+func (srv *Server) DeleteDistributor(c *gin.Context) {
+	code := c.Param("code")
+	if code == "" {
+		c.JSON(http.StatusBadRequest, types.ErrorResponse{Error: "code cannot be empty"})
+		return
+	}
+
+	err := srv.app.DeleteDistributor(code)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, types.ErrorResponse{Error: err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, types.SuccessResponse{Message: "success", Code: code})
+}
