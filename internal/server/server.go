@@ -1,10 +1,14 @@
 package server
 
 import (
+	_ "distributor-manager/docs"
 	"distributor-manager/internal/app"
 	"log"
 	"net/http"
 	"time"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -26,7 +30,9 @@ func NewServer(app *app.App) *Server {
 func (srv *Server) SetRouter() {
 	router := gin.Default()
 	router.Use(cors.Default())
-	router.GET("/", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"message": "success"}) })
+
+	//swagger doc endpoint
+	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	router.PUT("/distributor", srv.PutDistributor)
 	router.GET("/distributor/:code", srv.GetDistributor)

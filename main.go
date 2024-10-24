@@ -13,7 +13,7 @@ func main() {
 	log.Println("Initializing server...")
 
 	//Store initialization
-	countryStore := localstore.NewLocalCountryStore("../data/cities.csv")
+	countryStore := localstore.NewLocalCountryStore("data/cities.csv")
 	distStore := localstore.NewLocalDistributorStore()
 
 	//App initialization

@@ -7,7 +7,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Put Distributor Handler
+// PutDistributor godoc
+// @Summary Create or Update Distributor
+// @Description Can be used to update basic details and region permissions
+// @Produce json
+// @Param request body types.Distributor{} true "distributor data"
+// @Success 200 {object} types.SuccessResponse{}
+// @Failure 400 {object} types.ErrorResponse{}
+// @Failure 500 {object} types.ErrorResponse{}
+// @Router /distributor [put]
 func (srv *Server) PutDistributor(c *gin.Context) {
 	req := new(types.Distributor)
 
