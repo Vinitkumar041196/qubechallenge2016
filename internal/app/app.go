@@ -36,6 +36,16 @@ func (a *App) PutDistributor(dist *types.Distributor) error {
 		return fmt.Errorf("code cannot be empty")
 	}
 
+	if dist.ParentCode != "" {
+		pDist, err := a.distStore.GetDistributorByCode(dist.ParentCode)
+		if err != nil {
+			if strings.Contains(err.Error(), "not found") || pDist == nil {
+				return fmt.Errorf("invalid parent code: %s", dist.ParentCode)
+			}
+			return err
+		}
+	}
+
 	//validate distributon permissions
 	err := a.validateDistributorPermissions(dist)
 	if err != nil {

@@ -1,7 +1,273 @@
 {
+    "schemes": [
+        "http"
+    ],
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "Submission for Qube Challenge 2016",
+        "title": "Cinema Distributor API- Qube Challenge 2016",
+        "contact": {},
+        "version": "1.0"
     },
-    "paths": {}
+    "basePath": "/",
+    "paths": {
+        "/distributor": {
+            "put": {
+                "description": "Can be used to update basic details and region permissions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Create or Update Distributor",
+                "parameters": [
+                    {
+                        "description": "distributor data",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Distributor"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/distributor/is_serviceable": {
+            "post": {
+                "description": "Checks if distributor can provide service to a given region by matching own and ancestor's permissions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Checks if distributor can provide service to a given region",
+                "parameters": [
+                    {
+                        "description": "distributor code and region",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/IsServiceableRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/IsServiceableResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/distributor/{code}": {
+            "get": {
+                "description": "Get the latest details for distributor by code",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get Distributor",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "distributor code",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Distributor"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete distributor by code",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete Distributor",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "distributor code",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/ErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Distributor": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "DISTRIBUTOR1"
+                },
+                "parent_code": {
+                    "type": "string",
+                    "example": "DISTRIBUTOR2"
+                },
+                "permissions": {
+                    "$ref": "#/definitions/DistributorPermissions"
+                }
+            }
+        },
+        "DistributorPermissions": {
+            "type": "object",
+            "properties": {
+                "exclude": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "YELUR-KA-IN"
+                    ]
+                },
+                "include": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "US",
+                        "KA-IN",
+                        "CENAI-TN-IN"
+                    ]
+                }
+            }
+        },
+        "ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "invalid parent code: DISTRIBUTOR2"
+                }
+            }
+        },
+        "IsServiceableRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "DISTRIBUTOR1"
+                },
+                "region": {
+                    "type": "string",
+                    "example": "YELUR-KA-IN"
+                }
+            }
+        },
+        "IsServiceableResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "DISTRIBUTOR1"
+                },
+                "is_serviceable": {
+                    "type": "string",
+                    "enum": [
+                        "YES",
+                        "NO"
+                    ]
+                },
+                "region": {
+                    "type": "string",
+                    "example": "YELUR-KA-IN"
+                }
+            }
+        },
+        "SuccessResponse": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "DISTRIBUTOR1"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "success"
+                }
+            }
+        }
+    }
 }

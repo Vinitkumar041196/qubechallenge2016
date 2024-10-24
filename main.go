@@ -7,6 +7,11 @@ import (
 	"log"
 )
 
+// @title			Cinema Distributor API- Qube Challenge 2016
+// @version		1.0
+// @description	Submission for Qube Challenge 2016
+// @BasePath		/
+// @schemes		http
 func main() {
 	//set up logger
 	log.SetFlags(log.Lshortfile | log.Ldate)

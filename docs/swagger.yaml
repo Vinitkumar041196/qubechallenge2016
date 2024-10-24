@@ -1,4 +1,183 @@
+basePath: /
+definitions:
+  Distributor:
+    properties:
+      code:
+        example: DISTRIBUTOR1
+        type: string
+      parent_code:
+        example: DISTRIBUTOR2
+        type: string
+      permissions:
+        $ref: '#/definitions/DistributorPermissions'
+    type: object
+  DistributorPermissions:
+    properties:
+      exclude:
+        example:
+        - YELUR-KA-IN
+        items:
+          type: string
+        type: array
+      include:
+        example:
+        - US
+        - KA-IN
+        - CENAI-TN-IN
+        items:
+          type: string
+        type: array
+    type: object
+  ErrorResponse:
+    properties:
+      error:
+        example: 'invalid parent code: DISTRIBUTOR2'
+        type: string
+    type: object
+  IsServiceableRequest:
+    properties:
+      code:
+        example: DISTRIBUTOR1
+        type: string
+      region:
+        example: YELUR-KA-IN
+        type: string
+    type: object
+  IsServiceableResponse:
+    properties:
+      code:
+        example: DISTRIBUTOR1
+        type: string
+      is_serviceable:
+        enum:
+        - "YES"
+        - "NO"
+        type: string
+      region:
+        example: YELUR-KA-IN
+        type: string
+    type: object
+  SuccessResponse:
+    properties:
+      code:
+        example: DISTRIBUTOR1
+        type: string
+      message:
+        example: success
+        type: string
+    type: object
 info:
   contact: {}
-paths: {}
+  description: Submission for Qube Challenge 2016
+  title: Cinema Distributor API- Qube Challenge 2016
+  version: "1.0"
+paths:
+  /distributor:
+    put:
+      consumes:
+      - application/json
+      description: Can be used to update basic details and region permissions
+      parameters:
+      - description: distributor data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/Distributor'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Create or Update Distributor
+  /distributor/{code}:
+    delete:
+      description: Delete distributor by code
+      parameters:
+      - description: distributor code
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Delete Distributor
+    get:
+      description: Get the latest details for distributor by code
+      parameters:
+      - description: distributor code
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Distributor'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Get Distributor
+  /distributor/is_serviceable:
+    post:
+      consumes:
+      - application/json
+      description: Checks if distributor can provide service to a given region by
+        matching own and ancestor's permissions
+      parameters:
+      - description: distributor code and region
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/IsServiceableRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/IsServiceableResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+      summary: Checks if distributor can provide service to a given region
+schemes:
+- http
 swagger: "2.0"

@@ -34,6 +34,7 @@ func (srv *Server) SetRouter() {
 	//swagger doc endpoint
 	router.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
+	router.GET("/", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"message": "success"}) })
 	router.PUT("/distributor", srv.PutDistributor)
 	router.GET("/distributor/:code", srv.GetDistributor)
 	router.DELETE("/distributor/:code", srv.DeleteDistributor)
