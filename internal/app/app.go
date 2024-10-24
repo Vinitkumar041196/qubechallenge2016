@@ -4,6 +4,7 @@ import (
 	"distributor-manager/internal/store"
 	"distributor-manager/internal/types"
 	"fmt"
+	"strings"
 )
 
 type App struct {
@@ -46,16 +47,51 @@ func (a *App) validatePutDistributorReq(dist *types.Distributor) error {
 	}
 
 	for _, include := range dist.Permissions.Include {
-		if checkRegionInSlice(include, dist.Permissions.Exclude) {
-			return invalidInclusionError(include)
+		err := a.checkRegionStringValid(include)
+		if err != nil {
+			return invalidRegionStringError(include)
 		}
 
-		err := checkRegionValid(a.distStore, include, dist.ParentCode, false)
+		err = a.checkRegionValidity(include, dist)
 		if err != nil {
 			return err
 		}
 	}
 
+	return nil
+}
+
+func (a *App) checkRegionValidity(region string, dist *types.Distributor) error {
+	if checkRegionInSlice(region, dist.Permissions.Exclude) {
+		return invalidInclusionError(region)
+	}
+
+	err := checkRegionValid(a.distStore, region, dist.ParentCode, false)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (a *App) checkRegionStringValid(region string) error {
+	parts := strings.Split(region, "-")
+	lenParts := len(parts)
+	if lenParts == 1 {
+		_, err := a.countryStore.GetCountryByCode(parts[0])
+		if err != nil {
+			return err
+		}
+	} else if lenParts == 2 {
+		_, err := a.countryStore.GetProvinceByCode(parts[1], parts[0])
+		if err != nil {
+			return err
+		}
+	} else if lenParts == 3 {
+		_, err := a.countryStore.GetCityByCode(parts[2], parts[1], parts[0])
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
@@ -72,15 +108,28 @@ func (a *App) GetDistributor(code string) (*types.Distributor, error) {
 	return dist, nil
 }
 
-func (a *App) DeleteDistributor(code string) error {
-	if code == "" {
-		return fmt.Errorf("code cannot be empty")
+func (a *App) CheckIsServiceable(req *types.IsServiceableRequest) (bool, error) {
+	if req.Code == "" {
+		return false, fmt.Errorf("code cannot be empty")
 	}
 
-	err := a.distStore.DeleteDistributorByCode(code)
+	if req.Region == "" {
+		return false, fmt.Errorf("region cannot be empty")
+	}
+
+	dist, err := a.distStore.GetDistributorByCode(req.Code)
 	if err != nil {
-		return err
+		return false, err
 	}
 
-	return nil
+	err = a.checkRegionStringValid(req.Region)
+	if err != nil {
+		return false, invalidRegionStringError(req.Region)
+	}
+
+	err = a.checkRegionValidity(req.Region, dist)
+	if err != nil {
+		return false, nil
+	}
+	return true, nil
 }

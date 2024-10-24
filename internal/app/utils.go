@@ -10,6 +10,10 @@ func invalidInclusionError(region string) error {
 	return fmt.Errorf("invalid inclusion : %s", region)
 }
 
+func invalidRegionStringError(region string) error {
+	return fmt.Errorf("invalid region string : %s", region)
+}
+
 func checkRegionValid(store store.DistributorStorage, region string, code string, includeArrayError bool) error {
 	if code == "" {
 		if includeArrayError {
@@ -28,7 +32,7 @@ func checkRegionValid(store store.DistributorStorage, region string, code string
 	}
 
 	if checkRegionInSlice(region, dist.Permissions.Include) {
-		return nil
+		return checkRegionValid(store, region, dist.ParentCode, includeArrayError)
 	} else {
 		includeArrayError = true
 	}
