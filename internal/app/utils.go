@@ -45,6 +45,9 @@ func checkRegionValidWithAncestorPermissions(store store.DistributorStorage, rPa
 	//get parent distributor
 	parent, err := store.GetDistributorByCode(parentCode)
 	if err != nil {
+		if strings.Contains(err.Error(), "record not found") {
+			return nil
+		}
 		return err
 	}
 

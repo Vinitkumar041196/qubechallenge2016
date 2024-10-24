@@ -31,6 +31,7 @@ func (a *App) PutDistributor(dist *types.Distributor) error {
 	if dist == nil {
 		return fmt.Errorf("invalid input")
 	}
+
 	if dist.Code == "" {
 		return fmt.Errorf("code cannot be empty")
 	}
