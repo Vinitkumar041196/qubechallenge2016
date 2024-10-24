@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Put Distributor Handler
 func (srv *Server) PutDistributor(c *gin.Context) {
 	req := new(types.Distributor)
 
@@ -25,6 +26,7 @@ func (srv *Server) PutDistributor(c *gin.Context) {
 	c.JSON(http.StatusOK, types.SuccessResponse{Message: "success", Code: req.Code})
 }
 
+// Get Distributor Handler
 func (srv *Server) GetDistributor(c *gin.Context) {
 	code := c.Param("code")
 	if code == "" {
@@ -41,6 +43,7 @@ func (srv *Server) GetDistributor(c *gin.Context) {
 	c.JSON(http.StatusOK, dist)
 }
 
+// Check Distributor Serviceable Handler
 func (srv *Server) CheckIsServiceable(c *gin.Context) {
 	req := new(types.IsServiceableRequest)
 
@@ -55,9 +58,11 @@ func (srv *Server) CheckIsServiceable(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, types.ErrorResponse{Error: err.Error()})
 		return
 	}
+
 	isServiceableStr := "NO"
 	if isServiceable {
 		isServiceableStr = "YES"
 	}
+
 	c.JSON(http.StatusOK, types.IsServiceableResponse{Code: req.Code, Region: req.Region, IsServiceable: isServiceableStr})
 }

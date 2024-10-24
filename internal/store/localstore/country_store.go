@@ -12,6 +12,7 @@ type localCountryStore struct {
 	store    map[string]*types.Country
 }
 
+// In memory country store creation
 func NewLocalCountryStore(filepath string) store.CountryStorage {
 	return &localCountryStore{
 		filePath: filepath,
@@ -19,6 +20,7 @@ func NewLocalCountryStore(filepath string) store.CountryStorage {
 	}
 }
 
+// Loads data from csv to store
 func (s *localCountryStore) LoadData() error {
 	data, err := parser.ParseCSVFile(s.filePath)
 	if err != nil {
@@ -114,6 +116,7 @@ func (s *localCountryStore) GetCityByCode(countryCode, provinceCode, cityCode st
 	return city, nil
 }
 
+// generates record not found error
 func recordNotFoundError(id string) error {
 	return fmt.Errorf("record not found: %s", id)
 }

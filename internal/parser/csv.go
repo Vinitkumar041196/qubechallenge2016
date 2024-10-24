@@ -5,6 +5,7 @@ import (
 	"os"
 )
 
+// Parse CSV file to [][]string
 func ParseCSVFile(fileName string) ([][]string, error) {
 	file, err := os.Open(fileName)
 	if err != nil {

@@ -15,12 +15,14 @@ type Server struct {
 	router http.Handler
 }
 
+// New API server
 func NewServer(app *app.App) *Server {
 	srv := &Server{app: app}
 	srv.SetRouter()
 	return srv
 }
 
+// Initializing API routes
 func (srv *Server) SetRouter() {
 	router := gin.Default()
 	router.Use(cors.Default())
@@ -33,6 +35,7 @@ func (srv *Server) SetRouter() {
 	srv.router = router
 }
 
+// Start HTTP Server
 func (srv *Server) Start() error {
 	httpSrv := &http.Server{
 		Addr:         ":8080",

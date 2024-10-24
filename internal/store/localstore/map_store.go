@@ -2,11 +2,13 @@ package localstore
 
 import "sync"
 
+// Generic in memory store
 type MapStore[T any] struct {
 	store map[string]T
 	lock  sync.RWMutex
 }
 
+// Store initialization
 func newMapStore[T any]() MapStore[T] {
 	return MapStore[T]{
 		store: make(map[string]T),

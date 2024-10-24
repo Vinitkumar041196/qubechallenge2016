@@ -10,6 +10,7 @@ type localDistributorStore struct {
 	store MapStore[*types.Distributor]
 }
 
+// In memory distributor store creation
 func NewLocalDistributorStore() store.DistributorStorage {
 	return &localDistributorStore{
 		store: newMapStore[*types.Distributor](),
