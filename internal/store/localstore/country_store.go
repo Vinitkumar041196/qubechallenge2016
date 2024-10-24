@@ -9,7 +9,7 @@ import (
 
 type localCountryStore struct {
 	filePath string
-	store    MapStore[types.Country]
+	store    map[string]*types.Country
 }
 
 var ErrNotFound error = errors.New("record not found")
@@ -17,7 +17,7 @@ var ErrNotFound error = errors.New("record not found")
 func NewLocalCountryStore(filepath string) store.CountryStorage {
 	return &localCountryStore{
 		filePath: filepath,
-		store:    newMapStore[types.Country](),
+		store:    make(map[string]*types.Country),
 	}
 }
 
@@ -30,12 +30,12 @@ func (s *localCountryStore) LoadData() error {
 	if len(data) > 1 {
 		for _, row := range data[1:] {
 			if len(row) == 6 {
-				city := types.City{
+				city := &types.City{
 					Code: row[0],
 					Name: row[3],
 				}
 
-				if country, ok1 := s.store.Get(row[2]); ok1 {
+				if country, ok1 := s.store[row[2]]; ok1 {
 
 					if province, ok2 := country.Provinces[row[1]]; ok2 {
 
@@ -44,30 +44,30 @@ func (s *localCountryStore) LoadData() error {
 						}
 
 					} else {
-						country.Provinces[row[1]] = types.Province{
+						country.Provinces[row[1]] = &types.Province{
 							Code: row[1],
 							Name: row[4],
-							Cities: map[string]types.City{
+							Cities: map[string]*types.City{
 								city.Code: city,
 							},
 						}
 					}
 				} else {
-					country = types.Country{
+					country = &types.Country{
 						Code: row[2],
 						Name: row[5],
-						Provinces: map[string]types.Province{
+						Provinces: map[string]*types.Province{
 							row[1]: {
 								Code: row[1],
 								Name: row[4],
-								Cities: map[string]types.City{
+								Cities: map[string]*types.City{
 									city.Code: city,
 								},
 							},
 						},
 					}
 
-					s.store.Set(country.Code, country)
+					s.store[country.Code] = country
 				}
 			}
 		}
@@ -77,15 +77,15 @@ func (s *localCountryStore) LoadData() error {
 }
 
 func (s *localCountryStore) GetCountryByCode(code string) (*types.Country, error) {
-	country, ok := s.store.Get(code)
+	country, ok := s.store[code]
 	if !ok {
 		return nil, ErrNotFound
 	}
-	return &country, nil
+	return country, nil
 }
 
 func (s *localCountryStore) GetProvinceByCode(countryCode, provinceCode string) (*types.Province, error) {
-	country, ok := s.store.Get(countryCode)
+	country, ok := s.store[countryCode]
 	if !ok {
 		return nil, ErrNotFound
 	}
@@ -94,11 +94,11 @@ func (s *localCountryStore) GetProvinceByCode(countryCode, provinceCode string) 
 	if !ok {
 		return nil, ErrNotFound
 	}
-	return &province, nil
+	return province, nil
 }
 
 func (s *localCountryStore) GetCityByCode(countryCode, provinceCode, cityCode string) (*types.City, error) {
-	country, ok := s.store.Get(countryCode)
+	country, ok := s.store[countryCode]
 	if !ok {
 		return nil, ErrNotFound
 	}
@@ -113,5 +113,5 @@ func (s *localCountryStore) GetCityByCode(countryCode, provinceCode, cityCode st
 		return nil, ErrNotFound
 	}
 
-	return &city, nil
+	return city, nil
 }

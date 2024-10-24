@@ -9,8 +9,10 @@ type Distributor struct {
 }
 
 type DistributorPermissions struct {
-	Include []string `json:"include"`
-	Exclude []string `json:"exclude"`
+	Include    []string                       `json:"include"`
+	Exclude    []string                       `json:"exclude"`
+	IncludeMap map[string]map[string]struct{} `json:"-"`
+	ExcludeMap map[string]map[string]struct{} `json:"-"`
 }
 
 const CountryKey string = "CTRY"
