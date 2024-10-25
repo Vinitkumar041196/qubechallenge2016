@@ -1,5 +1,55 @@
 # Real Image Challenge 2016
 
+## How to use:
+
+The linux executable is present in bin folder. 
+
+To build code from source use:
+```
+go build -o ./bin/app main.go
+```
+
+To start the server run the below command:
+```
+./bin/app
+```
+
+You can directly run the code using command below:
+```
+go run main.go
+```
+
+HTTP server will start at `http://localhost:8080`
+
+API documentation is hosted at `http://localhost:8080/docs/index.html` 
+
+You can use the Swagger UI to test the APIs as well. Alternatively you can import the Postman collection in Postman applictaion stored in docs folders to use the APIs.
+
+## Update Swagger
+
+This implementation uses github.com/swaggo/swag/cmd/swag to generate swagger documentation. You can install it by running below command.
+
+```
+go install github.com/swaggo/swag/cmd/swag@latest
+```  
+
+To update swagger documentation, just update the comments on the API handlers and run the below command
+
+```
+swag init
+```
+---
+### Format for region string
+
+Whenever you are passing region string e.g. in Permissions or checking if region is valid for a given ditributor follow the format in same order as below.
+
+`CityCode-ProvinceCode-CountryCode`
+
+e.g. YELUR-KA-IN, TN-IN, US, etc.
+
+---
+
+## Prolem Statement
 In the cinema business, a feature film is usually provided to a regional distributor based on a contract for exhibition in a particular geographical territory.
 
 Each authorization is specified by a combination of included and excluded regions. For example, a distributor might be authorzied in the following manner:
